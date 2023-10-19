@@ -20,4 +20,6 @@ source would be a portable charger because they can easily be carried and they'r
 
 <img width="494" alt="Screenshot 2023-10-19 at 8 34 26 pm" src="https://github.com/breadybAKAbread/IT_Assessment_Laser_Wire/assets/141889268/e00cfa11-734b-409d-84bd-6e709d29b71f">
 
-
+Citations:
+https://littlebirdelectronics.com.au/guides/63/laser-sensor-for-arduino
+ChatGpt (For Errors)
