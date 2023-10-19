@@ -1,0 +1,103 @@
+
+//New Wifi code//
+#include <WiFi.h>
+
+const char* ssid = "";
+const char* password = "";
+
+WiFiServer server(80);
+String header;
+String laserStatus = "Not Triggered";
+int lightReader = 2;
+int freq = 2000;
+int x = 0;
+int buzzerPin = 12;
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(lightReader, INPUT);
+  pinMode(buzzerPin, OUTPUT);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("WiFi connected.");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+  server.begin();
+}
+
+void loop() {
+  WiFiClient client = server.available();
+
+  if (client) {
+    x = analogRead(lightReader);
+
+    if (x < 800) {
+      laserStatus = "Triggered";
+      tone(buzzerPin, freq);
+    } else {
+      laserStatus = "Not Triggered";
+      noTone(buzzerPin);
+    }
+
+    client.println("HTTP/1.1 200 OK");
+    client.println("Content-type:text/html");
+    client.println("Connection: close");
+    client.println();
+    client.println("<!DOCTYPE html><html>");
+    client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head>");
+    client.println("<body><h1>ESP32 Web Server</h1>");
+    client.println("<p>Laser Status: " + laserStatus + "</p>");
+    client.println("</body></html>");
+    client.println();
+    delay(1);
+    client.stop();
+  }
+}
+
+//Old Working Code//
+
+int ledPin1 = 18; //  green led pin(2)
+int ledPin2 = 4; // red led pin(4)
+int buzzerPin = 12; //  buzzer pin(5)
+int lightReader = 2; // photoresistor pin(A0)
+int freq = 2000;  // frequency for the buzzer (change # to effect the sound of buzzer)
+int x =  0; // initial value for x
+
+
+void setup() 
+{
+  Serial.begin(9600);
+  pinMode(ledPin1, OUTPUT);
+  pinMode(ledPin2, OUTPUT);
+  pinMode(buzzerPin,  OUTPUT);
+
+  pinMode(lightReader, INPUT);
+}
+
+void  loop() 
+{
+  
+  x = analogRead(lightReader); // this is for serial monitoring  purpose
+  Serial.print("Reading: "); 
+  Serial.println(x);
+  Serial.println(2);
+
+  if (x < 800) // if link between laser and photoresistor... (check serial monitor  and change this # to your liking) 
+{
+  digitalWrite(ledPin1, LOW);  // turn green led off
+  digitalWrite(ledPin2, HIGH); // turn red led on
+  tone(buzzerPin, freq); // buzzer sounds
+}
+else // if laser link is in  tact...
+{
+  digitalWrite(ledPin1, HIGH); // turn green led on
+  digitalWrite(ledPin2, LOW); // turn red led off
+  noTone(buzzerPin); // buzzer  does not sound
+}
+
+}
+
