@@ -1,20 +1,25 @@
-
-//New Wifi code//
+// New WiFi Code
 #include <WiFi.h>
 
-const char* ssid = "";
-const char* password = "";
+// Define WiFi credentials
+const char* ssid = "";      // Add your WiFi network name (SSID) here
+const char* password = "";  // Add your WiFi password here
 
+// Create a web server on port 80
 WiFiServer server(80);
-String header;
-String laserStatus = "Not Triggered";
-int lightReader = 2;
-int freq = 2000;
-int x = 0;
-int buzzerPin = 12;
+
+// Variables for laser functionality
+String laserStatus = "Not Triggered";  // Variable to store laser status (Triggered/Not Triggered)
+int lightReader = 2;                  // Analog pin to read the light sensor input
+int freq = 2000;                      // Frequency for the buzzer sound
+int x = 0;                            // Variable to store analog sensor reading
+int buzzerPin = 12;                   // Digital pin to control the buzzer
 
 void setup() {
+  // Start serial communication for debugging
   Serial.begin(115200);
+
+  // Initialize pins and connect to WiFi network
   pinMode(lightReader, INPUT);
   pinMode(buzzerPin, OUTPUT);
   WiFi.begin(ssid, password);
@@ -26,23 +31,30 @@ void setup() {
   Serial.println("WiFi connected.");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+
+  // Start the web server
   server.begin();
 }
 
 void loop() {
+  // Check for incoming client requests
   WiFiClient client = server.available();
 
+  // If there's a client request
   if (client) {
+    // Read analog sensor value
     x = analogRead(lightReader);
 
+    // Determine laser status based on the sensor reading
     if (x < 800) {
       laserStatus = "Triggered";
-      tone(buzzerPin, freq);
+      tone(buzzerPin, freq);  // Turn on the buzzer
     } else {
       laserStatus = "Not Triggered";
-      noTone(buzzerPin);
+      noTone(buzzerPin);  // Turn off the buzzer
     }
 
+    // Send HTTP response to the client
     client.println("HTTP/1.1 200 OK");
     client.println("Content-type:text/html");
     client.println("Connection: close");
@@ -58,46 +70,34 @@ void loop() {
   }
 }
 
-//Old Working Code//
+// Old Working Code//
 
-int ledPin1 = 18; //  green led pin(2)
-int ledPin2 = 4; // red led pin(4)
-int buzzerPin = 12; //  buzzer pin(5)
-int lightReader = 2; // photoresistor pin(A0)
-int freq = 2000;  // frequency for the buzzer (change # to effect the sound of buzzer)
-int x =  0; // initial value for x
+int ledPin1 = 18;    
+int ledPin2 = 4;    
+int buzzerPin = 12;  // Buzzer pin
+int lightReader = 2; // Photoresistor pin
+int freq = 2000;     // Buzzer frequency
+int x = 0;           // Initial value for sensor reading
 
-
-void setup() 
-{
+void setup() {
   Serial.begin(9600);
   pinMode(ledPin1, OUTPUT);
   pinMode(ledPin2, OUTPUT);
-  pinMode(buzzerPin,  OUTPUT);
-
+  pinMode(buzzerPin, OUTPUT);
   pinMode(lightReader, INPUT);
 }
 
-void  loop() 
-{
-  
-  x = analogRead(lightReader); // this is for serial monitoring  purpose
-  Serial.print("Reading: "); 
-  Serial.println(x);
-  Serial.println(2);
+void loop() {
+  x = analogRead(lightReader);
 
-  if (x < 800) // if link between laser and photoresistor... (check serial monitor  and change this # to your liking) 
-{
-  digitalWrite(ledPin1, LOW);  // turn green led off
-  digitalWrite(ledPin2, HIGH); // turn red led on
-  tone(buzzerPin, freq); // buzzer sounds
-}
-else // if laser link is in  tact...
-{
-  digitalWrite(ledPin1, HIGH); // turn green led on
-  digitalWrite(ledPin2, LOW); // turn red led off
-  noTone(buzzerPin); // buzzer  does not sound
-}
-
+  if (x < 800) {
+    digitalWrite(ledPin1, LOW);
+    digitalWrite(ledPin2, HIGH);
+    tone(buzzerPin, freq);
+  } else {
+    digitalWrite(ledPin1, HIGH);
+    digitalWrite(ledPin2, LOW);
+    noTone(buzzerPin);
+  }
 }
 
